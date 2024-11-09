@@ -1,2 +1,2 @@
-# Rakhwal
+# Rakhwala
  Team Infinity
