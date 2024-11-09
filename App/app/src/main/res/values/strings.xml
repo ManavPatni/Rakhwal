@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Rakhwala</string>
 
     <!-- Main Activity -->
@@ -14,5 +14,4 @@
     <string name="share_live_location">Share Live Location</string>
     <string name="track_location">Track Location</string>
     <string name="find_safe_route">Find Safe Route</string>
-
 </resources>

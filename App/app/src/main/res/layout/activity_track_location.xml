@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Input for access code -->
+    <EditText
+        android:id="@+id/accessCodeInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Access Code"
+        android:inputType="text" />
+
+    <!-- Track button -->
+    <Button
+        android:id="@+id/trackButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Track Location"
+        android:layout_marginTop="16dp" />
+
+    <!-- Mapbox MapView -->
+    <com.mapbox.maps.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:mapbox_cameraTargetLat="39.5"
+        app:mapbox_cameraTargetLng="-98.0"
+        app:mapbox_cameraZoom="2.0"
+        app:mapbox_cameraPitch="0.0"
+        app:mapbox_cameraBearing="0.0" />
+</LinearLayout>

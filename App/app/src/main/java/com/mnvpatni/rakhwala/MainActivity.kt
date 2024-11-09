@@ -17,7 +17,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnFindSafeRoute.setOnClickListener { startActivity(Intent(this,ShareLiveLocationActivity::class.java)) }
+        binding.cvTrackLocation.setOnClickListener { startActivity(Intent(this,TrackLocationActivity::class.java)) }
+        binding.cvShareLiveLocation.setOnClickListener { startActivity(Intent(this,ShareLiveLocationActivity::class.java)) }
 
     }
 }
