@@ -1,4 +1,4 @@
-package com.mnvpatni.rakhwal
+package com.mnvpatni.rakhwala
 
 import org.junit.Test
 

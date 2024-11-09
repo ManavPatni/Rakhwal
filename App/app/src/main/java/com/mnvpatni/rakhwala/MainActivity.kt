@@ -1,4 +1,4 @@
-package com.mnvpatni.rakhwal
+package com.mnvpatni.rakhwala
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge

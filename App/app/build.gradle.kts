@@ -1,16 +1,17 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.mnvpatni.rakhwal"
-    compileSdk = 34
+    namespace = "com.mnvpatni.rakhwala"
+    compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.mnvpatni.rakhwal"
+        applicationId = "com.mnvpatni.rakhwala"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -25,6 +26,9 @@ android {
                 "proguard-rules.pro"
             )
         }
+    }
+    buildFeatures {
+        viewBinding = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -45,4 +49,26 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    //Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+    implementation("com.google.firebase:firebase-analytics")
+
+    //SDP & SSP-auto sizing
+    implementation("com.intuit.sdp:sdp-android:1.1.1")
+    runtimeOnly("com.intuit.ssp:ssp-android:1.1.1")
+
+    // Retrofit for network requests
+    implementation ("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.11.0")
+
+    //glide
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+
+    //google map
+    implementation("com.google.android.gms:play-services-location:18.0.0")
+    implementation("com.google.maps.android:android-maps-utils:3.8.2")
+    implementation("com.google.maps.android:maps-utils-ktx:5.1.1")
+
 }

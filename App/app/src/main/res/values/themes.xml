@@ -1,9 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.Rakhwal" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.Rakhwala" parent="Theme.Material3.Light.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:statusBarColor">@color/status_bar_color</item>
     </style>
 
-    <style name="Theme.Rakhwal" parent="Base.Theme.Rakhwal" />
+    <style name="Theme.Rakhwala" parent="Base.Theme.Rakhwala" />
 </resources>
