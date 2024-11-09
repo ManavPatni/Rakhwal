@@ -53,6 +53,12 @@ dependencies {
     //Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-auth-ktx")
+
+    //Google Play Services
+    //Google Auth
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 
     //SDP & SSP-auto sizing
     implementation("com.intuit.sdp:sdp-android:1.1.1")
