@@ -76,6 +76,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         textToSpeech = TextToSpeech(this, this)
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
+        // Initialize TextToSpeech
+        textToSpeech = TextToSpeech(this, this)
+        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
         binding.cvTrackLocation.setOnClickListener {
             startActivity(Intent(this, TrackLocationActivity::class.java))
         }
