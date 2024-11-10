@@ -84,6 +84,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             startActivity(Intent(this, ShareLiveLocationActivity::class.java))
         }
 
+        binding.btnFindSafeRoute.setOnClickListener {
+            startActivity(Intent(this, SearchDestinationActivity::class.java))
+        }
+
         binding.bottomNavigationView.setOnItemSelectedListener {
             when (it.toString()) {
                 "SOS Contact" -> {

@@ -5,6 +5,7 @@
     <color name="primary_bg">#F6F6F6</color>
     <color name="green">#B7EB7E</color>
     <color name="light_green">#F1FBE3</color>
+    <color name="yellow">#FFEB3B</color>
     <color name="purple">#B2A1F8</color>
     <color name="red">#F42C2C</color>
     <color name="status_bar_color">#2C6A2F</color>

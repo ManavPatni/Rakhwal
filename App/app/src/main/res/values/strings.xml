@@ -14,4 +14,5 @@
     <string name="share_live_location">Share Live Location</string>
     <string name="track_location">Track Location</string>
     <string name="find_safe_route">Find Safe Route</string>
+    <string name="google_autocomplete_key">AIzaSyDELzhkFP0PqutWq_x87DxdC_7DMxcvVGw</string>
 </resources>

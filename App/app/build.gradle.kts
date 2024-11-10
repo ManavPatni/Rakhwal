@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.mnvpatni.rakhwala"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -86,5 +86,8 @@ dependencies {
 
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
+
+    // Google Places API (for Autocomplete)
+    implementation("com.google.android.libraries.places:places:3.5.0")
 
 }
