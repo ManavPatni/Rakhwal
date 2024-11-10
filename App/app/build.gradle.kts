@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
+    kotlin("kapt")
 }
 
 android {
@@ -10,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.mnvpatni.rakhwala"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -53,6 +54,12 @@ dependencies {
     //Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-auth-ktx")
+
+    //Google Play Services
+    //Google Auth
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 
     //SDP & SSP-auto sizing
     implementation("com.intuit.sdp:sdp-android:1.1.1")
@@ -68,7 +75,19 @@ dependencies {
 
     //google map
     implementation("com.google.android.gms:play-services-location:18.0.0")
-    implementation("com.google.maps.android:android-maps-utils:3.8.2")
-    implementation("com.google.maps.android:maps-utils-ktx:5.1.1")
+
+    //mapbox
+    implementation("com.mapbox.maps:android:11.7.2")
+
+    //room
+    implementation ("androidx.room:room-runtime:2.5.0")
+    kapt ("androidx.room:room-compiler:2.5.0")
+    implementation ("androidx.room:room-ktx:2.5.0")
+
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
+
+    // Google Places API (for Autocomplete)
+    implementation("com.google.android.libraries.places:places:3.5.0")
 
 }

@@ -12,7 +12,7 @@
         android:title="SOS Contact" />
 
     <item
-        android:id="@+id/navigation_profile"
-        android:icon="@drawable/ic_profile"
-        android:title="Profile" />
+        android:id="@+id/navigation_alert"
+        android:icon="@drawable/ic_speaker"
+        android:title="Loud Alert" />
 </menu>
