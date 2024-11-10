@@ -3,10 +3,7 @@ package com.mnvpatni.rakhwala
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.mnvpatni.rakhwala.databinding.ActivitySplashScreenBinding
 import com.mnvpatni.rakhwala.sharedPref.AuthSharedPref
 import java.util.Timer
@@ -59,5 +56,4 @@ class SplashScreen : AppCompatActivity() {
         startActivity(intent)
         finishAffinity()
     }
-
 }
