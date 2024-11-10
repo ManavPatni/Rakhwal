@@ -1,6 +1,8 @@
 package com.mnvpatni.rakhwala
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -10,6 +12,7 @@ import android.location.Location
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.telephony.SmsManager
@@ -18,9 +21,13 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -53,6 +60,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             Toast.makeText(this, "Permissions not granted", Toast.LENGTH_SHORT).show()
         }
     }
+
+    private val CHANNEL_ID = "MyChannelID"
+    private val notificationId = 1
 
     // BroadcastReceiver to listen to phone call state
     private val phoneCallReceiver = object : BroadcastReceiver() {
@@ -124,6 +134,33 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         // Register the BroadcastReceiver to listen for call state changes
         val filter = IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
         registerReceiver(phoneCallReceiver, filter)
+
+
+        binding.tvAngry.setOnClickListener {
+            showSnackBar("It’s okay to feel this way. Let’s help you find calm.")
+            sendNotification("Take a Deep Breath", "Anger is tough, but breathing exercises can help. Find a quiet spot, and we’re here with you.")
+        }
+
+        binding.tvSad.setOnClickListener {
+            showSnackBar("Oh no... We're here for you.")
+            sendNotification("You’re Not Alone", "Feeling sad can be hard. A moment of mindfulness or a favorite song might lift your spirits. Try it out!")
+        }
+
+        binding.tvNeutral.setOnClickListener {
+            showSnackBar("Let’s add a little brightness to your day!")
+            sendNotification("Find Your Center", "Try a simple breathing exercise or a relaxing podcast to find some balance. 😊")
+        }
+
+        binding.tvGood.setOnClickListener {
+            showSnackBar("Great! Keep that positive vibe!")
+            sendNotification("Stay Grounded", "Keep this positive energy going with some light stretching or a moment of gratitude.")
+        }
+
+        binding.tvHappy.setOnClickListener {
+            showSnackBar("Fantastic! Keep up the great mood!")
+            sendNotification("Enjoy the Happiness!", "Happiness is contagious! Spread it by connecting with your loved ones today 😊")
+        }
+
     }
 
     override fun onInit(status: Int) {
@@ -277,6 +314,76 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             mediaPlayer.release()  // Release resources when done
             isPlaying = false
             Toast.makeText(this, "Sound stopped", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showSnackBar(message: String) {
+        Snackbar.make(binding.main, message, Snackbar.LENGTH_LONG)
+            .setAction("Action", null)
+            .show()
+    }
+
+    private fun askNotificationPermission() {
+        // This is only necessary for API level >= 33 (TIRAMISU)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                //Permission granted
+            } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                //nothing
+            } else {
+                // Directly ask for the permission
+                requestPermissionLauncher2.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
+    private val requestPermissionLauncher2 = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+        if (isGranted) {
+            // FCM SDK can post notifications.
+        } else {
+            //Inform user that that your app will not show notifications.
+            println("Failed")
+        }
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "MyChannelName"
+            val descriptionText = "My notification channel description"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+
+            val notificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun sendNotification(title: String, message: String) {
+        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_happy)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+        with(NotificationManagerCompat.from(this)) {
+            if (ActivityCompat.checkSelfPermission(
+                    this@MainActivity,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return
+            }
+            notify(notificationId, builder.build())
         }
     }
 
