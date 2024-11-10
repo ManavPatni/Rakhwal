@@ -1,15 +1,22 @@
 package com.mnvpatni.rakhwala
 
 import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.location.Location
+import android.media.AudioManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.speech.tts.TextToSpeech
 import android.telephony.SmsManager
+import android.telephony.TelephonyManager
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -23,17 +30,42 @@ import com.google.firebase.database.FirebaseDatabase
 import com.mnvpatni.rakhwala.adaper.ContactAdapter
 import com.mnvpatni.rakhwala.databinding.ActivitySoscontactBinding
 import kotlinx.coroutines.launch
+import java.util.Locale
 
-class SOSContactActivity : AppCompatActivity() {
+class SOSContactActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var binding: ActivitySoscontactBinding
     private lateinit var contactAdapter: ContactAdapter
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var textToSpeech: TextToSpeech
+    private lateinit var audioManager: AudioManager
 
     private companion object {
         private const val REQUEST_CONTACT_PERMISSION = 100
         private const val REQUEST_SELECT_CONTACT = 101
         private const val REQUEST_SOS_PERMISSION = 102
+    }
+
+    // Permission request launcher
+    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+        if (permissions[Manifest.permission.CALL_PHONE] == true &&
+            permissions[Manifest.permission.READ_PHONE_STATE] == true) {
+            initiateSosCall()
+        } else {
+            Toast.makeText(this, "Permissions not granted", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // BroadcastReceiver to listen to phone call state
+    private val phoneCallReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val state = intent.getStringExtra(TelephonyManager.EXTRA_STATE)
+
+            if (TelephonyManager.EXTRA_STATE_OFFHOOK == state) {
+                // Phone is picked up (call is answered)
+                playMessageOverSpeaker()
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,6 +95,20 @@ class SOSContactActivity : AppCompatActivity() {
 
         binding.btnSos.setOnClickListener {
             checkLocationPermission()
+        }
+        // Register the BroadcastReceiver to listen for call state changes
+        val filter = IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
+        registerReceiver(phoneCallReceiver, filter)
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val languageResult = textToSpeech.setLanguage(Locale.US)
+            if (languageResult == TextToSpeech.LANG_MISSING_DATA || languageResult == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Toast.makeText(this, "Language not supported or missing data", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(this, "Text-to-Speech initialization failed", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -251,6 +297,45 @@ class SOSContactActivity : AppCompatActivity() {
             Toast.makeText(this, "Failed to send SMS: ${e.message}", Toast.LENGTH_LONG).show()
             e.printStackTrace()
         }
+        checkPermissionsAndInitiateCall()
     }
+
+    private fun checkPermissionsAndInitiateCall() {
+        if (checkSelfPermission(Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED &&
+            checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            initiateSosCall()
+        } else {
+            // Request permissions
+            requestPermissionLauncher.launch(arrayOf(Manifest.permission.CALL_PHONE, Manifest.permission.READ_PHONE_STATE))
+        }
+    }
+
+    private fun initiateSosCall() {
+        val phoneNumber = "tel:9028303891"
+        val callIntent = Intent(Intent.ACTION_CALL)
+        callIntent.data = Uri.parse(phoneNumber)
+
+        try {
+            startActivity(callIntent)
+            startCallMonitoring()
+        } catch (e: Exception) {
+            Toast.makeText(this, "Failed to make the call", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun startCallMonitoring() {
+        // We don't need to manually monitor the call state with PhoneStateListener anymore.
+    }
+
+    private fun playMessageOverSpeaker() {
+        // Set the speakerphone on
+        audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
+        audioManager.isSpeakerphoneOn = true
+
+        // Message to speak when the call is picked up
+        val messageToSpeak = "Hello! This is an automated SOS message."
+        textToSpeech.speak(messageToSpeak, TextToSpeech.QUEUE_FLUSH, null, null)
+    }
+
 
 }
