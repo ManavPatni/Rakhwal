@@ -8,11 +8,13 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Location
 import android.media.AudioManager
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.telephony.SmsManager
 import android.telephony.TelephonyManager
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -40,6 +42,10 @@ class RouteActivity : AppCompatActivity() {
     private lateinit var routesAdapter: RoutesAdapter
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var binding: ActivityRouteBinding
+
+    private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var audioManager2: AudioManager
+    private var isPlaying = false
 
     private var latitude = 0.0
     private var longitude = 0.0
@@ -99,6 +105,8 @@ class RouteActivity : AppCompatActivity() {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
+        binding.progressCircular.visibility = View.VISIBLE
+
         textToSpeech = TextToSpeech(this) { status ->
             if (status != TextToSpeech.ERROR) {
                 textToSpeech.language = Locale.US
@@ -106,11 +114,25 @@ class RouteActivity : AppCompatActivity() {
         }
 
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        // Initialize AudioManager and set up media player
+        audioManager2 = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
         getCurrentLocation()
 
         binding.btnSos.setOnClickListener {
             checkAndRequestPermissions()
+        }
+
+        // Initialize AudioManager and set up media player
+        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+        // Play sound button setup
+        binding.fabLoudSound.setOnClickListener {
+            if (isPlaying) {
+                stopSound()
+            } else {
+                playSound()
+            }
         }
 
         val filter = IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
@@ -209,21 +231,13 @@ class RouteActivity : AppCompatActivity() {
         textToSpeech.speak(messageToSpeak, TextToSpeech.QUEUE_FLUSH, null, null)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(phoneCallReceiver)
-        if (::textToSpeech.isInitialized) {
-            textToSpeech.stop()
-            textToSpeech.shutdown()
-        }
-    }
-
     private fun fetchRoutes(startLat: Double, startLon: Double, endLat: Double, endLon: Double) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = RetrofitClient.apiService.getRoutes(startLat, startLon, endLat, endLon)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
+                        binding.progressCircular.visibility = View.GONE
                         val routes = response.body()?.body ?: emptyList()
                         routesAdapter = RoutesAdapter(routes) { route ->
                             openGoogleMaps(route.end_point.latitude, route.end_point.longitude)
@@ -257,4 +271,38 @@ class RouteActivity : AppCompatActivity() {
             onContactsFetched(contacts)
         }
     }
+
+    private fun playSound() {
+        // Set audio output to the speaker and set volume to maximum
+        audioManager2.mode = AudioManager.MODE_IN_COMMUNICATION
+        audioManager2.isSpeakerphoneOn = true
+        audioManager2.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager2.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0)
+
+        // Initialize MediaPlayer to play the sound resource
+        mediaPlayer = MediaPlayer.create(this, R.raw.alert_sound) // Ensure alert_sound.mp3 is in res/raw
+        mediaPlayer.isLooping = true  // Loop the sound indefinitely
+        mediaPlayer.start()
+        isPlaying = true
+
+        Toast.makeText(this, "Sound is playing", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun stopSound() {
+        if (::mediaPlayer.isInitialized && mediaPlayer.isPlaying) {
+            mediaPlayer.stop()
+            mediaPlayer.release()  // Release resources when done
+            isPlaying = false
+            Toast.makeText(this, "Sound stopped", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(phoneCallReceiver)
+        if (::textToSpeech.isInitialized) {
+            textToSpeech.stop()
+            textToSpeech.shutdown()
+        }
+    }
+
 }

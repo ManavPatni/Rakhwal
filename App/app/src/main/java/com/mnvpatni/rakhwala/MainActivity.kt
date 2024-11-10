@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Location
 import android.media.AudioManager
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
@@ -39,6 +40,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         private const val REQUEST_SOS_PERMISSION = 102
     }
 
+    private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var audioManager2: AudioManager
+    private var isPlaying = false
 
     // Permission request launcher
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
@@ -72,6 +76,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
+        // Initialize AudioManager and set up media player
+        audioManager2 = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
         // Initialize TextToSpeech
         textToSpeech = TextToSpeech(this, this)
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -98,8 +105,12 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     startActivity(Intent(this,SOSContactActivity::class.java))
                 }
 
-                "Profile" -> {
-                    //todo
+                "Loud Alert" -> {
+                    if (isPlaying) {
+                        stopSound()
+                    } else {
+                        playSound()
+                    }
                 }
             }
             return@setOnItemSelectedListener true
@@ -244,4 +255,29 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             textToSpeech.shutdown()
         }
     }
+
+    private fun playSound() {
+        // Set audio output to the speaker and set volume to maximum
+        audioManager2.mode = AudioManager.MODE_IN_COMMUNICATION
+        audioManager2.isSpeakerphoneOn = true
+        audioManager2.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager2.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0)
+
+        // Initialize MediaPlayer to play the sound resource
+        mediaPlayer = MediaPlayer.create(this, R.raw.alert_sound) // Ensure alert_sound.mp3 is in res/raw
+        mediaPlayer.isLooping = true  // Loop the sound indefinitely
+        mediaPlayer.start()
+        isPlaying = true
+
+        Toast.makeText(this, "Sound is playing", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun stopSound() {
+        if (::mediaPlayer.isInitialized && mediaPlayer.isPlaying) {
+            mediaPlayer.stop()
+            mediaPlayer.release()  // Release resources when done
+            isPlaying = false
+            Toast.makeText(this, "Sound stopped", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 }
